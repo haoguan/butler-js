@@ -1,0 +1,10 @@
+RegisterCleaningIntent I cleaned {CleanedItem}
+RegisterCleaningIntent I cleaned my {CleanedItem}
+RegisterCleaningIntent that I cleaned {CleanedItem}
+RegisterCleaningIntent that I cleaned my {CleanedItem}
+
+AMAZON.StopIntent stop
+AMAZON.StopIntent no
+AMAZON.StopIntent nope
+AMAZON.StopIntent no thanks
+AMAZON.StopIntent no thank you

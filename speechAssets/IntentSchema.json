@@ -1,0 +1,49 @@
+{
+  "intents": [
+    {
+      "intent": "RegisterCleaningIntent",
+      "slots": [
+        {
+          "name": "CleanedItem",
+          "type": "LIST_OF_CLEANABLE_ITEMS"
+        }
+      ]
+    },
+    {
+      "intent": "RegisterReplaceIntent",
+      "slots": [
+        {
+          "name": "ReplacedItem",
+          "type": "LIST_OF_REPLACEABLE_ITEMS"
+        }
+      ]
+    },
+    {
+      "intent": "RegisterPerishableIntent",
+      "slots": [
+        {
+          "name": "PerishableItem",
+          "type": "LIST_OF_PERISHABLE_ITEMS"
+        }
+      ]
+    },
+    {
+      "intent": "QueryItemIntent",
+      "slots": [
+        {
+          "name": "QueryItem",
+          "type": "LIST_OF_ALL_ITEMS"
+        }
+      ]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}
