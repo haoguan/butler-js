@@ -44,7 +44,7 @@ ButlerSkill.prototype.eventHandlers.onSessionStarted = function (sessionStartedR
 
 ButlerSkill.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("ButlerSkill onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    handleOnLaunchResponse(response);
+    handleOnLaunchResponse(session, response);
 };
 
 ButlerSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
@@ -112,7 +112,9 @@ ButlerSkill.prototype.intentHandlers = {
  * Function to handle the onLaunch skill behavior
  */
 
-function handleOnLaunchResponse(response) {
+function handleOnLaunchResponse(session, response) {
+  var userId = session.user.userId
+  makePostRequest(SERVER_ROOT, usersPostPath(userId), function(body) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "Butler Requested";
     var cardOutput = "Butler, at your service";
@@ -130,6 +132,7 @@ function handleOnLaunchResponse(response) {
         type: AlexaSkill.speechOutputType.SSML
     };
     response.askWithCard(speechOutput, repromptOutput, cardTitle, cardOutput);
+  }
 }
 
 
@@ -140,18 +143,15 @@ function handleOnLaunchResponse(response) {
 function handleRegisterCleaningRequest(intent, session, response) {
   // TODO: sanitize item for other words
   // Send user ID and cleaned item to custom api endpoint
-  var userId = session.user.userId
-  makePostRequest(SERVER_ROOT, usersPostPath(userId), function(body) {
-    var cleanedItem = intent.slots.CleanedItem
-    var cardTitle = "Register Cleaning Item";
-    var cardOutput = "Butler registered cleaning item: " + cleanedItem.value;
-    var speechText = "<p>Affirmative.</p> <p>Will notify you when " + cleanedItem.value + " needs to be cleaned.</p>";
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    response.tellWithCard(speechOutput, cardTitle, cardOutput);
-  })
+  var cleanedItem = intent.slots.CleanedItem
+  var cardTitle = "Register Cleaning Item";
+  var cardOutput = "Butler registered cleaning item: " + cleanedItem.value;
+  var speechText = "<p>Affirmative.</p> <p>Will notify you when " + cleanedItem.value + " needs to be cleaned.</p>";
+  var speechOutput = {
+      speech: "<speak>" + speechText + "</speak>",
+      type: AlexaSkill.speechOutputType.SSML
+  };
+  response.tellWithCard(speechOutput, cardTitle, cardOutput);
 }
 
 function makePostRequest(url, path, callback) {
