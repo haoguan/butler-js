@@ -207,11 +207,11 @@ function handleQueryItemRequest(intent, session, response) {
 
   makeGetRequest(SERVER_ROOT, itemsPath(alexaId, queryItem.value), function(body) {
     // TODO: Error handling! Need to check status code
-    var response = JSON.parse(body)
+    var bodyObj = JSON.parse(body)
     // Take first item for now
-    var firstItem = response.data[0]
+    var firstItem = bodyObj.data[0]
 
-    let itemFullName = firstItem.modifier + " " + firstItem.type;
+    let itemFullName = (firstItem.modifier + " " + firstItem.type).trim();
     var cardTitle = "Butler queried: " + itemFullName;
     var cardOutput = "Butler queried item: " + itemFullName;
     var speechText = "Your " + itemFullName + " will expire on: " + firstItem.expiration_date;
@@ -240,7 +240,14 @@ function makeRequest(url, path, method, callback) {
       path: sanitizedPath
   };
   var req = http.request(options, (response) => {
-      callback(response);
+    var body = '';
+    // Concat data in chunks and callback only when complete!
+    response.on('data', function(chunk) {
+      body += chunk;
+    });
+    response.on('end', function() {
+      callback(body);
+    });
   })
   req.end()
 }
