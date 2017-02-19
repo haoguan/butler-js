@@ -22,8 +22,8 @@ RegisterPerishableIntent that I cooked some {PerishableItem}
 QueryItemIntent how's my {QueryItem}
 QueryItemIntent how are the {QueryItem}
 QueryItemIntent how are my {QueryItem}
-QueryItemIntent check on {ReplacedItem}
-QueryItemIntent check on my {ReplacedItem}
+QueryItemIntent check on {QueryItem}
+QueryItemIntent check on my {QueryItem}
 
 AMAZON.StopIntent stop
 AMAZON.StopIntent no
