@@ -3,6 +3,22 @@ RegisterCleaningIntent I cleaned my {CleanedItem}
 RegisterCleaningIntent that I cleaned {CleanedItem}
 RegisterCleaningIntent that I cleaned my {CleanedItem}
 
+RegisterReplaceIntent I replaced {ReplacedItem}
+RegisterReplaceIntent I replaced my {ReplacedItem}
+RegisterReplaceIntent that I replaced {ReplacedItem}
+RegisterReplaceIntent that I replaced my {ReplacedItem}
+
+RegisterPerishableIntent I opened {PerishableItem}
+RegisterPerishableIntent I opened my {PerishableItem}
+RegisterPerishableIntent I opened a jar of {PerishableItem}
+RegisterPerishableIntent I opened a bottle of {PerishableItem}
+RegisterPerishableIntent that I opened {PerishableItem}
+RegisterPerishableIntent that I opened my {PerishableItem}
+RegisterPerishableIntent that I opened a jar of {PerishableItem}
+RegisterPerishableIntent that I opened a bottle of {PerishableItem}
+RegisterPerishableIntent that I cooked {PerishableItem}
+RegisterPerishableIntent that I cooked some {PerishableItem}
+
 AMAZON.StopIntent stop
 AMAZON.StopIntent no
 AMAZON.StopIntent nope
