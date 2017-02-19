@@ -154,7 +154,7 @@ function handleRegisterCleaningRequest(intent, session, response) {
   var alexaId = session.user.userId
   var cleanedItem = intent.slots.CleanedItem
 
-  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, cleanedItem.value), function(body) {
+  makePostRequest(SERVER_ROOT, itemsPath(alexaId, cleanedItem.value), function(body) {
     var cardTitle = "Butler registered: " + cleanedItem.value;
     var cardOutput = "Butler registered cleanable item: " + cleanedItem.value;
     var speechText = "<p>Okay.</p> Registered " + cleanedItem.value;
@@ -171,7 +171,7 @@ function handleRegisterReplaceRequest(intent, session, response) {
   var alexaId = session.user.userId
   var replacedItem = intent.slots.ReplacedItem
 
-  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, replacedItem.value), function(body) {
+  makePostRequest(SERVER_ROOT, itemsPath(alexaId, replacedItem.value), function(body) {
     var cardTitle = "Butler registered: " + replacedItem.value;
     var cardOutput = "Butler registered replaceable item: " + replacedItem.value;
     var speechText = "<p>Okay.</p> Registered " + replacedItem.value;
