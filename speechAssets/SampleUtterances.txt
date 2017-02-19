@@ -19,6 +19,12 @@ RegisterPerishableIntent that I opened a bottle of {PerishableItem}
 RegisterPerishableIntent that I cooked {PerishableItem}
 RegisterPerishableIntent that I cooked some {PerishableItem}
 
+QueryItemIntent how's my {QueryItem}
+QueryItemIntent how are the {QueryItem}
+QueryItemIntent how are my {QueryItem}
+QueryItemIntent check on {ReplacedItem}
+QueryItemIntent check on my {ReplacedItem}
+
 AMAZON.StopIntent stop
 AMAZON.StopIntent no
 AMAZON.StopIntent nope

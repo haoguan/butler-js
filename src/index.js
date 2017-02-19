@@ -6,7 +6,7 @@ var http = require('http');
  * App ID for the skill
  */
 var APP_ID = "amzn1.ask.skill.3409ffbf-3745-452a-be2e-e292db495362"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
-var SERVER_ROOT = "c9a00d09.ngrok.io";
+var SERVER_ROOT = "a2c15d4d.ngrok.io";
 var PATH_ROOT = "/api/v1"
 
 /**
@@ -72,6 +72,10 @@ ButlerSkill.prototype.intentHandlers = {
 
     "RegisterPerishableIntent": function (intent, session, response) {
         handleRegisterPerishableRequest(intent, session, response);
+    },
+
+    "QueryItemIntent": function (intent, session, response) {
+        handleQueryItemRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
@@ -184,7 +188,7 @@ function handleRegisterPerishableRequest(intent, session, response) {
   var alexaId = session.user.userId
   var perishableItem = intent.slots.PerishableItem
 
-  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, perishableItem.value), function(body) {
+  makePostRequest(SERVER_ROOT, itemsPath(alexaId, perishableItem.value), function(body) {
     var cardTitle = "Butler registered: " + perishableItem.value;
     var cardOutput = "Butler registered perishable item: " + perishableItem.value;
     var speechText = "<p>Okay.</p> Registered " + perishableItem.value;
@@ -196,12 +200,43 @@ function handleRegisterPerishableRequest(intent, session, response) {
   })
 }
 
+function handleQueryItemRequest(intent, session, response) {
+  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+  var alexaId = session.user.userId
+  var queryItem = intent.slots.QueryItem
+
+  makeGetRequest(SERVER_ROOT, itemsPath(alexaId, queryItem.value), function(body) {
+    // TODO: Error handling! Need to check status code
+    var response = JSON.parse(body)
+    // Take first item for now
+    var firstItem = response.data[0]
+
+    let itemFullName = firstItem.modifier + " " + firstItem.type;
+    var cardTitle = "Butler queried: " + itemFullName;
+    var cardOutput = "Butler queried item: " + itemFullName;
+    var speechText = "Your " + itemFullName + " will expire on: " + firstItem.expiration_date;
+    var speechOutput = {
+        speech: "<speak>" + speechText + "</speak>",
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+  })
+}
+
 function makePostRequest(url, path, callback) {
+  makeRequest(url, path, "POST", callback);
+}
+
+function makeGetRequest(url, path, callback) {
+  makeRequest(url, path, "GET", callback);
+}
+
+function makeRequest(url, path, method, callback) {
   // Remove spaces from path
   var sanitizedPath = path.replace(/\s+/g, '');
   var options = {
       hostname: url,
-      method: 'POST',
+      method: method,
       path: sanitizedPath
   };
   var req = http.request(options, (response) => {
@@ -215,7 +250,7 @@ function usersPostPath(alexaId) {
   return `${PATH_ROOT}/users?alexa_id=${alexaId}`;
 }
 
-function itemsPostPath(alexaId, item) {
+function itemsPath(alexaId, item) {
   return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
 }
 
