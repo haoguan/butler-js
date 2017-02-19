@@ -6,7 +6,8 @@ var http = require('http');
  * App ID for the skill
  */
 var APP_ID = "amzn1.ask.skill.3409ffbf-3745-452a-be2e-e292db495362"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
-var SERVER_ROOT = "cd54197d.ngrok.io";
+var SERVER_ROOT = "c9a00d09.ngrok.io";
+var PATH_ROOT = "/api/v1"
 
 /**
  * The AlexaSkill Module that has the AlexaSkill prototype and helper functions
@@ -65,9 +66,13 @@ ButlerSkill.prototype.intentHandlers = {
         handleRegisterCleaningRequest(intent, session, response);
     },
 
-    // "GetNextEventIntent": function (intent, session, response) {
-    //     handleNextEventRequest(intent, session, response);
-    // },
+    "RegisterReplaceIntent": function (intent, session, response) {
+        handleRegisterReplaceRequest(intent, session, response);
+    },
+
+    "RegisterPerishableIntent": function (intent, session, response) {
+        handleRegisterPerishableRequest(intent, session, response);
+    },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
         var speechText = "<s>Butler sir, is your human reminder system.</s>" +
@@ -113,8 +118,8 @@ ButlerSkill.prototype.intentHandlers = {
  */
 
 function handleOnLaunchResponse(session, response) {
-  var userId = session.user.userId
-  makePostRequest(SERVER_ROOT, usersPostPath(userId), function(body) {
+  var alexaId = session.user.userId
+  makePostRequest(SERVER_ROOT, usersPostPath(alexaId), function(body) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "Butler Requested";
     var cardOutput = "Butler, at your service";
@@ -132,7 +137,7 @@ function handleOnLaunchResponse(session, response) {
         type: AlexaSkill.speechOutputType.SSML
     };
     response.askWithCard(speechOutput, repromptOutput, cardTitle, cardOutput);
-  }
+  })
 }
 
 
@@ -141,33 +146,77 @@ function handleOnLaunchResponse(session, response) {
  */
 
 function handleRegisterCleaningRequest(intent, session, response) {
-  // TODO: sanitize item for other words
-  // Send user ID and cleaned item to custom api endpoint
+  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+  var alexaId = session.user.userId
   var cleanedItem = intent.slots.CleanedItem
-  var cardTitle = "Register Cleaning Item";
-  var cardOutput = "Butler registered cleaning item: " + cleanedItem.value;
-  var speechText = "<p>Affirmative.</p> <p>Will notify you when " + cleanedItem.value + " needs to be cleaned.</p>";
-  var speechOutput = {
-      speech: "<speak>" + speechText + "</speak>",
-      type: AlexaSkill.speechOutputType.SSML
-  };
-  response.tellWithCard(speechOutput, cardTitle, cardOutput);
+
+  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, cleanedItem.value), function(body) {
+    var cardTitle = "Butler registered: " + cleanedItem.value;
+    var cardOutput = "Butler registered cleanable item: " + cleanedItem.value;
+    var speechText = "<p>Okay.</p> Registered " + cleanedItem.value;
+    var speechOutput = {
+        speech: "<speak>" + speechText + "</speak>",
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+  })
+}
+
+function handleRegisterReplaceRequest(intent, session, response) {
+  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+  var alexaId = session.user.userId
+  var replacedItem = intent.slots.ReplacedItem
+
+  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, replacedItem.value), function(body) {
+    var cardTitle = "Butler registered: " + replacedItem.value;
+    var cardOutput = "Butler registered replaceable item: " + replacedItem.value;
+    var speechText = "<p>Okay.</p> Registered " + replacedItem.value;
+    var speechOutput = {
+        speech: "<speak>" + speechText + "</speak>",
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+  })
+}
+
+function handleRegisterPerishableRequest(intent, session, response) {
+  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+  var alexaId = session.user.userId
+  var perishableItem = intent.slots.PerishableItem
+
+  makePostRequest(SERVER_ROOT, itemsPostPath(alexaId, perishableItem.value), function(body) {
+    var cardTitle = "Butler registered: " + perishableItem.value;
+    var cardOutput = "Butler registered perishable item: " + perishableItem.value;
+    var speechText = "<p>Okay.</p> Registered " + perishableItem.value;
+    var speechOutput = {
+        speech: "<speak>" + speechText + "</speak>",
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+  })
 }
 
 function makePostRequest(url, path, callback) {
-    var options = {
-        hostname: url,
-        method: 'POST',
-        path: path
-    };
-    var req = http.request(options, (response) => {
-        callback(response);
-    })
-    req.end()
+  // Remove spaces from path
+  var sanitizedPath = path.replace(/\s+/g, '');
+  var options = {
+      hostname: url,
+      method: 'POST',
+      path: sanitizedPath
+  };
+  var req = http.request(options, (response) => {
+      callback(response);
+  })
+  req.end()
 }
 
-function usersPostPath(userId) {
-  return `/api/v1/users?alexa_id=${userId}`;
+// Path Helpers
+function usersPostPath(alexaId) {
+  return `${PATH_ROOT}/users?alexa_id=${alexaId}`;
+}
+
+function itemsPostPath(alexaId, item) {
+  return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
 }
 
 // Create the handler that responds to the Alexa Request.
