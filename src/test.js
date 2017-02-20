@@ -2,13 +2,20 @@
 
 var http = require('http');
 
-var SERVER_ROOT = "a2c15d4d.ngrok.io";
+var SERVER_ROOT = "7a56cbbf.ngrok.io";
 var PATH_ROOT = "/api/v1"
 
 let alexaId = "amzn1.ask.account.AEV4NLDBR4AIEB55QJYBOCSNX3QRE533OHT72UK4OAX5GBJTEORIRMG3MFLF2PNQ4KXNA3OTLK6GOLE2G6D3XWUXDJQ3XNCKGL5MIYMXOTVVN5LOVVIRMFGMPZIOAXPBEZX2IYGL4DWGTGA5E3DWRNVBFGTIKUM5OR3H3ZGXBOD6K3TGQI7WNP3VPLE3OPTEZ5RSFUHN6IK7YJA"
-let queryItem = "bedsheets"
+let postItem = "bottled ketchup"
 
-makeGetRequest(SERVER_ROOT, itemsPath(alexaId, queryItem), function(body) {
+// makePostRequest(SERVER_ROOT, usersPostPath(alexaId), function(body) {
+//   // console.log(itemFullName)
+// });
+
+// makePostRequest(SERVER_ROOT, itemsPath(alexaId, postItem), function(body) {
+// })
+
+makeGetRequest(SERVER_ROOT, itemsPath(alexaId, postItem), function(body) {
   console.log(body)
   // TODO: Error handling! Need to check status code
   var response = JSON.parse(body)
@@ -17,7 +24,7 @@ makeGetRequest(SERVER_ROOT, itemsPath(alexaId, queryItem), function(body) {
 
   let itemFullName = (firstItem.modifier + " " + firstItem.type).trim();
   console.log(itemFullName)
-  console.log(firstItem.expiration_date)
+  console.log(firstItem.expiration_string)
   // var cardTitle = "Butler queried: " + itemFullName;
   // var cardOutput = "Butler queried item: " + itemFullName;
   // var speechText = "Your " + itemFullName + " will expire on: " + firstItem.expiration_date;
@@ -38,7 +45,7 @@ function makeGetRequest(url, path, callback) {
 
 function makeRequest(url, path, method, callback) {
   // Remove spaces from path
-  var sanitizedPath = path.replace(/\s+/g, '');
+  var sanitizedPath = path.replace(/\s+/g, '+');
   var options = {
       hostname: url,
       method: method,

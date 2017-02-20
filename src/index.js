@@ -6,7 +6,7 @@ var http = require('http');
  * App ID for the skill
  */
 var APP_ID = "amzn1.ask.skill.3409ffbf-3745-452a-be2e-e292db495362"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
-var SERVER_ROOT = "a2c15d4d.ngrok.io";
+var SERVER_ROOT = "7a56cbbf.ngrok.io";
 var PATH_ROOT = "/api/v1"
 
 /**
@@ -214,7 +214,7 @@ function handleQueryItemRequest(intent, session, response) {
     let itemFullName = (firstItem.modifier + " " + firstItem.type).trim();
     var cardTitle = "Butler queried: " + itemFullName;
     var cardOutput = "Butler queried item: " + itemFullName;
-    var speechText = "Your " + itemFullName + " will expire on: " + firstItem.expiration_date;
+    var speechText = "Your " + itemFullName + " will expire " + firstItem.expiration_string;
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
         type: AlexaSkill.speechOutputType.SSML
@@ -232,8 +232,8 @@ function makeGetRequest(url, path, callback) {
 }
 
 function makeRequest(url, path, method, callback) {
-  // Remove spaces from path
-  var sanitizedPath = path.replace(/\s+/g, '');
+  // Replace spaces from path with +
+  var sanitizedPath = path.replace(/\s+/g, '+');
   var options = {
       hostname: url,
       method: method,
