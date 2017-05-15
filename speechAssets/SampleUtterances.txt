@@ -1,13 +1,20 @@
+
+RegisterCleaningIntent to add clean item {CleanedItem}
+RegisterCleaningIntent to add cleaned item {CleanedItem}
 RegisterCleaningIntent I cleaned {CleanedItem}
 RegisterCleaningIntent I cleaned my {CleanedItem}
 RegisterCleaningIntent that I cleaned {CleanedItem}
 RegisterCleaningIntent that I cleaned my {CleanedItem}
 
+RegisterReplaceIntent to add replaceable item {ReplacedItem}
+RegisterReplaceIntent to add replaced item {ReplacedItem}
+RegisterReplaceIntent to add replace item {ReplacedItem}
 RegisterReplaceIntent I replaced {ReplacedItem}
 RegisterReplaceIntent I replaced my {ReplacedItem}
 RegisterReplaceIntent that I replaced {ReplacedItem}
 RegisterReplaceIntent that I replaced my {ReplacedItem}
 
+RegisterPerishableIntent to add perishable item {PerishableItem}
 RegisterPerishableIntent I opened {PerishableItem}
 RegisterPerishableIntent I opened my {PerishableItem}
 RegisterPerishableIntent I opened a jar of {PerishableItem}
@@ -24,6 +31,10 @@ QueryItemIntent how are the {QueryItem}
 QueryItemIntent how are my {QueryItem}
 QueryItemIntent check on {QueryItem}
 QueryItemIntent check on my {QueryItem}
+
+StatusUpdateIntent for a status update
+StatusUpdateIntent what's up
+StatusUpdateIntent how am I doing?
 
 AMAZON.StopIntent stop
 AMAZON.StopIntent no

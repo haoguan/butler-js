@@ -78,6 +78,10 @@ ButlerSkill.prototype.intentHandlers = {
         handleQueryItemRequest(intent, session, response);
     },
 
+    "StatusUpdateIntent": function (intent, session, response) {
+        handleStatusUpdateRequest(intent, session, response);
+    },
+
     "AMAZON.HelpIntent": function (intent, session, response) {
         var speechText = "<s>Butler sir, is your human reminder system.</s>" +
             "<s>For example, ask me to log an item by saying, I just replaced my toothbrush.</s>" +
@@ -223,6 +227,30 @@ function handleQueryItemRequest(intent, session, response) {
   })
 }
 
+function handleStatusUpdateRequest(intent, session, response) {
+    // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+    var alexaId = session.user.userId
+
+    makeGetRequest(SERVER_ROOT, statusPath(alexaId), function(body) {
+      var bodyObj = JSON.parse(body)
+      var speechText = "Here are your action items: "
+      for (let item of bodyObj.data) {
+        let itemFullName = `${item.modifier} ${item.type}`.trim();
+        speechText = `${speechText} ${itemFullName} will expire ${item.expiration_string}.`
+      }
+
+      var cardTitle = "Butler status update";
+      var cardOutput = "Butler status update: " + speechText;
+
+      var speechOutput = {
+          speech: "<speak>" + speechText + "</speak>",
+          type: AlexaSkill.speechOutputType.SSML
+      };
+
+      response.tellWithCard(speechOutput, cardTitle, cardOutput);
+    })
+}
+
 function makePostRequest(url, path, callback) {
   makeRequest(url, path, "POST", callback);
 }
@@ -259,6 +287,10 @@ function usersPostPath(alexaId) {
 
 function itemsPath(alexaId, item) {
   return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
+}
+
+function statusPath(alexaId) {
+  return `${PATH_ROOT}/items?alexa_id=${alexaId}&status=1`;
 }
 
 // Create the handler that responds to the Alexa Request.

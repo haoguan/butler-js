@@ -37,6 +37,9 @@
       ]
     },
     {
+      "intent": "StatusUpdateIntent"
+    },
+    {
       "intent": "AMAZON.HelpIntent"
     },
     {
