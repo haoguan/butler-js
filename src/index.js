@@ -62,16 +62,8 @@ ButlerSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedReque
 
 ButlerSkill.prototype.intentHandlers = {
 
-    "RegisterCleaningIntent": function (intent, session, response) {
-        handleRegisterCleaningRequest(intent, session, response);
-    },
-
-    "RegisterReplaceIntent": function (intent, session, response) {
-        handleRegisterReplaceRequest(intent, session, response);
-    },
-
-    "RegisterPerishableIntent": function (intent, session, response) {
-        handleRegisterPerishableRequest(intent, session, response);
+    "RegisterItemIntent": function (intent, session, response) {
+        handleRegisterItemRequest(intent, session, response);
     },
 
     "QueryItemIntent": function (intent, session, response) {
@@ -153,49 +145,16 @@ function handleOnLaunchResponse(session, response) {
  * Intent Handlers
  */
 
-function handleRegisterCleaningRequest(intent, session, response) {
+function handleRegisterItemRequest(intent, session, response) {
   // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
   var alexaId = session.user.userId
-  var cleanedItem = intent.slots.CleanedItem
+  var expirableItem = intent.slots.ExpirableItem
+  var expirationDate = intent.slots.ExpirationDate
 
-  makePostRequest(SERVER_ROOT, itemsPath(alexaId, cleanedItem.value), function(body) {
-    var cardTitle = "Butler registered: " + cleanedItem.value;
-    var cardOutput = "Butler registered cleanable item: " + cleanedItem.value;
-    var speechText = "<p>Okay.</p> Registered " + cleanedItem.value;
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    response.tellWithCard(speechOutput, cardTitle, cardOutput);
-  })
-}
-
-function handleRegisterReplaceRequest(intent, session, response) {
-  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
-  var alexaId = session.user.userId
-  var replacedItem = intent.slots.ReplacedItem
-
-  makePostRequest(SERVER_ROOT, itemsPath(alexaId, replacedItem.value), function(body) {
-    var cardTitle = "Butler registered: " + replacedItem.value;
-    var cardOutput = "Butler registered replaceable item: " + replacedItem.value;
-    var speechText = "<p>Okay.</p> Registered " + replacedItem.value;
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    response.tellWithCard(speechOutput, cardTitle, cardOutput);
-  })
-}
-
-function handleRegisterPerishableRequest(intent, session, response) {
-  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
-  var alexaId = session.user.userId
-  var perishableItem = intent.slots.PerishableItem
-
-  makePostRequest(SERVER_ROOT, itemsPath(alexaId, perishableItem.value), function(body) {
-    var cardTitle = "Butler registered: " + perishableItem.value;
-    var cardOutput = "Butler registered perishable item: " + perishableItem.value;
-    var speechText = "<p>Okay.</p> Registered " + perishableItem.value;
+  makePostRequest(SERVER_ROOT, itemsPath(alexaId, expirableItem.value, expirationDate.value), function(body) {
+    var cardTitle = "Butler registered: " + expirableItem.value;
+    var cardOutput = "Butler registered item: " + expirableItem.value + ", due on " + expirationDate.value;
+    var speechText = "<p>Okay.</p> Registered " + expirableItem.value + ", due on " + expirationDate.value;
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
         type: AlexaSkill.speechOutputType.SSML
@@ -285,8 +244,8 @@ function usersPostPath(alexaId) {
   return `${PATH_ROOT}/users?alexa_id=${alexaId}`;
 }
 
-function itemsPath(alexaId, item) {
-  return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
+function itemsPath(alexaId, item, expiration) {
+  return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}&expiration=${expiration}`;
 }
 
 function statusPath(alexaId) {
