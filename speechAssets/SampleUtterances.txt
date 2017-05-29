@@ -1,5 +1,5 @@
-RegisterItemIntent to set expiration for {ExpirableItem} in {ExpirationDate}
-RegisterItemIntent to set expiration for {ExpirableItem} on {ExpirationDate}
+RegisterItemIntent to set reminder for {ExpirableItem} {ExpirationDate}
+RegisterItemIntent to set reminder for {ExpirableItem} {ExpirationDate}
 
 QueryItemIntent to check expiration for {QueryItem}
 QueryItemIntent check expiration for {QueryItem}
@@ -10,7 +10,7 @@ QueryItemIntent how is my {QueryItem}
 
 StatusUpdateIntent for a status update
 StatusUpdateIntent what's up
-StatusUpdateIntent how am I doing?
+StatusUpdateIntent how am I doing
 
 AMAZON.StopIntent stop
 AMAZON.StopIntent no

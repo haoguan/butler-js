@@ -6,7 +6,7 @@ var http = require('http');
  * App ID for the skill
  */
 var APP_ID = "amzn1.ask.skill.3409ffbf-3745-452a-be2e-e292db495362"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
-var SERVER_ROOT = "7a56cbbf.ngrok.io";
+var SERVER_ROOT = "d4c0f96a.ngrok.io";
 var PATH_ROOT = "/api/v1"
 
 /**
@@ -151,15 +151,19 @@ function handleRegisterItemRequest(intent, session, response) {
   var expirableItem = intent.slots.ExpirableItem
   var expirationDate = intent.slots.ExpirationDate
 
-  makePostRequest(SERVER_ROOT, itemsPath(alexaId, expirableItem.value, expirationDate.value), function(body) {
-    var cardTitle = "Butler registered: " + expirableItem.value;
-    var cardOutput = "Butler registered item: " + expirableItem.value + ", due on " + expirationDate.value;
-    var speechText = "<p>Okay.</p> Registered " + expirableItem.value + ", due on " + expirationDate.value;
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+  makePostRequest(SERVER_ROOT, itemsCreatePath(alexaId, expirableItem.value, expirationDate.value), function(statusCode, body) {
+    if (statusCode != 200 && statusCode != 201) {
+      var cardTitle = "Butler registered: " + expirableItem.value;
+      var cardOutput = "Butler registered item: " + expirableItem.value + ", due " + expirationDate.value;
+      var speechText = "<p>Okay.</p> Registered " + expirableItem.value + ", due " + expirationDate.value;
+      var speechOutput = {
+          speech: "<speak>" + speechText + "</speak>",
+          type: AlexaSkill.speechOutputType.SSML
+      };
+      response.tellWithCard(speechOutput, cardTitle, cardOutput);
+    } else {
+      handleAPIError(response)
+    }
   })
 }
 
@@ -168,21 +172,24 @@ function handleQueryItemRequest(intent, session, response) {
   var alexaId = session.user.userId
   var queryItem = intent.slots.QueryItem
 
-  makeGetRequest(SERVER_ROOT, itemsPath(alexaId, queryItem.value), function(body) {
-    // TODO: Error handling! Need to check status code
-    var bodyObj = JSON.parse(body)
-    // Take first item for now
-    var firstItem = bodyObj.data[0]
+  makeGetRequest(SERVER_ROOT, itemsGetPath(alexaId, queryItem.value), function(statusCode, body) {
+    if (statusCode != 200 && statusCode != 201) {
+      handleAPIError(response)
+    } else {
+      var bodyObj = JSON.parse(body)
+      // Take first item for now
+      var firstItem = bodyObj.data[0]
+      var itemName = firstItem.item
 
-    let itemFullName = (firstItem.modifier + " " + firstItem.type).trim();
-    var cardTitle = "Butler queried: " + itemFullName;
-    var cardOutput = "Butler queried item: " + itemFullName;
-    var speechText = "Your " + itemFullName + " will expire " + firstItem.expiration_string;
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    response.tellWithCard(speechOutput, cardTitle, cardOutput);
+      var cardTitle = "Butler queried: " + itemName;
+      var cardOutput = "Butler queried item: " + itemName;
+      var speechText = "<p>" + itemName + "</p> will expire " + firstItem.expiration_string;
+      var speechOutput = {
+          speech: "<speak>" + speechText + "</speak>",
+          type: AlexaSkill.speechOutputType.SSML
+      };
+      response.tellWithCard(speechOutput, cardTitle, cardOutput);
+    }
   })
 }
 
@@ -190,23 +197,27 @@ function handleStatusUpdateRequest(intent, session, response) {
     // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
     var alexaId = session.user.userId
 
-    makeGetRequest(SERVER_ROOT, statusPath(alexaId), function(body) {
-      var bodyObj = JSON.parse(body)
-      var speechText = "Here are your action items: "
-      for (let item of bodyObj.data) {
-        let itemFullName = `${item.modifier} ${item.type}`.trim();
-        speechText = `${speechText} ${itemFullName} will expire ${item.expiration_string}.`
+    makeGetRequest(SERVER_ROOT, statusPath(alexaId), function(statusCode, body) {
+      if (statusCode != 200 && statusCode != 201) {
+        handleAPIError(response)
+      } else {
+        var bodyObj = JSON.parse(body)
+        var speechText = "Here are your action items: "
+        for (let item of bodyObj.data) {
+          let itemFullName = `${item.modifier} ${item.type}`.trim();
+          speechText = `${speechText} ${itemFullName} will expire ${item.expiration_string}.`
+        }
+
+        var cardTitle = "Butler status update";
+        var cardOutput = "Butler status update: " + speechText;
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+
+        response.tellWithCard(speechOutput, cardTitle, cardOutput);
       }
-
-      var cardTitle = "Butler status update";
-      var cardOutput = "Butler status update: " + speechText;
-
-      var speechOutput = {
-          speech: "<speak>" + speechText + "</speak>",
-          type: AlexaSkill.speechOutputType.SSML
-      };
-
-      response.tellWithCard(speechOutput, cardTitle, cardOutput);
     })
 }
 
@@ -233,7 +244,7 @@ function makeRequest(url, path, method, callback) {
       body += chunk;
     });
     response.on('end', function() {
-      callback(body);
+      callback(response.statusCode, body);
     });
   })
   req.end()
@@ -244,12 +255,25 @@ function usersPostPath(alexaId) {
   return `${PATH_ROOT}/users?alexa_id=${alexaId}`;
 }
 
-function itemsPath(alexaId, item, expiration) {
+function itemsCreatePath(alexaId, item, expiration) {
   return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}&expiration=${expiration}`;
 }
 
+function itemsGetPath(alexaId, item) {
+  return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
+}
+
 function statusPath(alexaId) {
-  return `${PATH_ROOT}/items?alexa_id=${alexaId}&status=1`;
+  return `${PATH_ROOT}/status?alexa_id=${alexaId}`;
+}
+
+function handleAPIError(response) {
+  var speechText = "Something unexpected happened. Please try again.";
+  var speechOutput = {
+      speech: "<speak>" + speechText + "</speak>",
+      type: AlexaSkill.speechOutputType.SSML
+  };
+  response.tell(speechOutput);
 }
 
 // Create the handler that responds to the Alexa Request.
