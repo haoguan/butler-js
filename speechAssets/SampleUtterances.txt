@@ -1,5 +1,5 @@
 RegisterItemIntent to set reminder for {ExpirableItem} {ExpirationDate}
-RegisterItemIntent to set reminder for {ExpirableItem} {ExpirationDate}
+RegisterItemIntent to set a reminder for {ExpirableItem} {ExpirationDate}
 
 QueryItemIntent to check expiration for {QueryItem}
 QueryItemIntent check expiration for {QueryItem}
@@ -7,6 +7,11 @@ QueryItemIntent how's the {QueryItem}
 QueryItemIntent how is the {QueryItem}
 QueryItemIntent how's my {QueryItem}
 QueryItemIntent how is my {QueryItem}
+
+DeleteItemIntent to remove {DeleteItem}
+DeleteItemIntent to remove {DeleteItem} item
+DeleteItemIntent to complete {DeleteItem}
+DeleteItemIntent to complete {DeleteItem} item
 
 StatusUpdateIntent for a status update
 StatusUpdateIntent what's up

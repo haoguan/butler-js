@@ -23,6 +23,15 @@
       ]
     },
     {
+      "intent": "DeleteItemIntent",
+      "slots": [
+        {
+          "name": "DeleteItem",
+          "type": "LIST_OF_ALL_ITEMS"
+        }
+      ]
+    },
+    {
       "intent": "StatusUpdateIntent"
     },
     {
