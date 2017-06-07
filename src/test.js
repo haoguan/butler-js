@@ -2,7 +2,7 @@
 
 var http = require('http');
 
-var SERVER_ROOT = "d4c0f96a.ngrok.io";
+var SERVER_ROOT = "limitless-wave-31173.herokuapp.com";
 var PATH_ROOT = "/api/v1"
 
 let alexaId = "amzn1.ask.account.AEV4NLDBR4AIEB55QJYBOCSNX3QRE533OHT72UK4OAX5GBJTEORIRMG3MFLF2PNQ4KXNA3OTLK6GOLE2G6D3XWUXDJQ3XNCKGL5MIYMXOTVVN5LOVVIRMFGMPZIOAXPBEZX2IYGL4DWGTGA5E3DWRNVBFGTIKUM5OR3H3ZGXBOD6K3TGQI7WNP3VPLE3OPTEZ5RSFUHN6IK7YJA"
@@ -15,12 +15,13 @@ let postItem = "bottled ketchup"
 // makePostRequest(SERVER_ROOT, itemsPath(alexaId, postItem), function(body) {
 // })
 
-makeGetRequest(SERVER_ROOT, itemsGetPath(alexaId, postItem), function(statusCode, body) {
-  console.log(statusCode != 200)
-  if (statusCode != 200 && statusCode != 201) {
-    console.log("ERROR")
-  } else {
+makeGetRequest(SERVER_ROOT, statusPath(alexaId), function(statusCode, body) {
+  console.log(statusCode)
+  console.log(statusCode == 200)
+  if (statusCode == 200 || statusCode == 201) {
     console.log("WORKS")
+  } else {
+    console.log("FAILS")
   }
   // TODO: Error handling! Need to check status code
   var response = JSON.parse(body)
@@ -53,9 +54,11 @@ function makeRequest(url, path, method, callback) {
   var sanitizedPath = path.replace(/\s+/g, '+');
   var options = {
       hostname: url,
+      port: 80,
       method: method,
       path: sanitizedPath
   };
+  console.log(options)
   var req = http.request(options, (response) => {
     var body = '';
     // Concat data in chunks and callback only when complete!
@@ -83,7 +86,7 @@ function itemsGetPath(alexaId, item) {
 }
 
 function statusPath(alexaId) {
-  return `${PATH_ROOT}/items?alexa_id=${alexaId}&status=1`;
+  return `${PATH_ROOT}/status?alexa_id=${alexaId}`;
 }
 
 function handleAPIError(response) {

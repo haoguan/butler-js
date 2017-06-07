@@ -6,8 +6,9 @@ var http = require('http');
  * App ID for the skill
  */
 var APP_ID = "amzn1.ask.skill.3409ffbf-3745-452a-be2e-e292db495362"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
-var SERVER_ROOT = "d4c0f96a.ngrok.io";
+var SERVER_ROOT = "limitless-wave-31173.herokuapp.com";
 var PATH_ROOT = "/api/v1"
+var PORT = 80
 
 /**
  * The AlexaSkill Module that has the AlexaSkill prototype and helper functions
@@ -68,6 +69,10 @@ ButlerSkill.prototype.intentHandlers = {
 
     "QueryItemIntent": function (intent, session, response) {
         handleQueryItemRequest(intent, session, response);
+    },
+
+    "DeleteItemIntent": function (intent, session, response) {
+        handleDeleteItemRequest(intent, session, response);
     },
 
     "StatusUpdateIntent": function (intent, session, response) {
@@ -152,10 +157,36 @@ function handleRegisterItemRequest(intent, session, response) {
   var expirationDate = intent.slots.ExpirationDate
 
   makePostRequest(SERVER_ROOT, itemsCreatePath(alexaId, expirableItem.value, expirationDate.value), function(statusCode, body) {
-    if (statusCode != 200 && statusCode != 201) {
+    if (statusCode == 200 || statusCode == 201) {
       var cardTitle = "Butler registered: " + expirableItem.value;
       var cardOutput = "Butler registered item: " + expirableItem.value + ", due " + expirationDate.value;
       var speechText = "<p>Okay.</p> Registered " + expirableItem.value + ", due " + expirationDate.value;
+      var speechOutput = {
+          speech: "<speak>" + speechText + "</speak>",
+          type: AlexaSkill.speechOutputType.SSML
+      };
+      response.tellWithCard(speechOutput, cardTitle, cardOutput);
+    } else {
+      handleAPIError(response)
+    }
+  })
+}
+
+function handleDeleteItemRequest(intent, session, response) {
+  // TODO: sanitize item for other words (e.g. pronouns, articles, etc)
+  var alexaId = session.user.userId
+  var deleteItem = intent.slots.DeleteItem
+
+  makeDeleteRequest(SERVER_ROOT, itemsDeletePath(alexaId, deleteItem.value), function(statusCode, body) {
+    if (statusCode == 200 || statusCode == 201) {
+      var bodyObj = JSON.parse(body)
+      // Take first item for now
+      var firstItem = bodyObj.data[0]
+      var itemName = firstItem.item
+
+      var cardTitle = "Butler deleted: " + itemName;
+      var cardOutput = "Butler deleted item: " + itemName;
+      var speechText = "<p>" + itemName + "</p> successfully deleted";
       var speechOutput = {
           speech: "<speak>" + speechText + "</speak>",
           type: AlexaSkill.speechOutputType.SSML
@@ -173,9 +204,7 @@ function handleQueryItemRequest(intent, session, response) {
   var queryItem = intent.slots.QueryItem
 
   makeGetRequest(SERVER_ROOT, itemsGetPath(alexaId, queryItem.value), function(statusCode, body) {
-    if (statusCode != 200 && statusCode != 201) {
-      handleAPIError(response)
-    } else {
+    if (statusCode == 200 || statusCode == 201) {
       var bodyObj = JSON.parse(body)
       // Take first item for now
       var firstItem = bodyObj.data[0]
@@ -183,12 +212,14 @@ function handleQueryItemRequest(intent, session, response) {
 
       var cardTitle = "Butler queried: " + itemName;
       var cardOutput = "Butler queried item: " + itemName;
-      var speechText = "<p>" + itemName + "</p> will expire " + firstItem.expiration_string;
+      var speechText = "<p>" + itemName + "</p> has expiration " + firstItem.expiration_string;
       var speechOutput = {
           speech: "<speak>" + speechText + "</speak>",
           type: AlexaSkill.speechOutputType.SSML
       };
       response.tellWithCard(speechOutput, cardTitle, cardOutput);
+    } else {
+      handleAPIError(response)
     }
   })
 }
@@ -198,14 +229,16 @@ function handleStatusUpdateRequest(intent, session, response) {
     var alexaId = session.user.userId
 
     makeGetRequest(SERVER_ROOT, statusPath(alexaId), function(statusCode, body) {
-      if (statusCode != 200 && statusCode != 201) {
-        handleAPIError(response)
-      } else {
+      if (statusCode == 200 || statusCode == 201) {
         var bodyObj = JSON.parse(body)
-        var speechText = "Here are your action items: "
-        for (let item of bodyObj.data) {
-          let itemFullName = `${item.modifier} ${item.type}`.trim();
-          speechText = `${speechText} ${itemFullName} will expire ${item.expiration_string}.`
+        var speechText = "Here are your upcoming action items: "
+        for (let item of bodyObj.data["warning_items"]) {
+          speechText = `${speechText} ${item.item} will expire ${item.expiration_string}.`
+        }
+
+        speechText = `${speechText} Here are your already expired items: `
+        for (let item of bodyObj.data["expired_items"]) {
+          speechText = `${speechText} ${item.item} will expire ${item.expiration_string}.`
         }
 
         var cardTitle = "Butler status update";
@@ -217,23 +250,30 @@ function handleStatusUpdateRequest(intent, session, response) {
         };
 
         response.tellWithCard(speechOutput, cardTitle, cardOutput);
+      } else {
+        handleAPIError(response)
       }
     })
 }
 
 function makePostRequest(url, path, callback) {
-  makeRequest(url, path, "POST", callback);
+  makeRequest(url, PORT, path, "POST", callback);
 }
 
 function makeGetRequest(url, path, callback) {
-  makeRequest(url, path, "GET", callback);
+  makeRequest(url, PORT, path, "GET", callback);
 }
 
-function makeRequest(url, path, method, callback) {
+function makeDeleteRequest(url, path, callback) {
+  makeRequest(url, PORT, path, "DELETE", callback);
+}
+
+function makeRequest(url, port, path, method, callback) {
   // Replace spaces from path with +
   var sanitizedPath = path.replace(/\s+/g, '+');
   var options = {
       hostname: url,
+      port: port,
       method: method,
       path: sanitizedPath
   };
@@ -261,6 +301,10 @@ function itemsCreatePath(alexaId, item, expiration) {
 
 function itemsGetPath(alexaId, item) {
   return `${PATH_ROOT}/items?alexa_id=${alexaId}&item=${item}`;
+}
+
+function itemsDeletePath(alexaId, item) {
+  return `${PATH_ROOT}/items/complete?alexa_id=${alexaId}&item=${item}`;
 }
 
 function statusPath(alexaId) {
