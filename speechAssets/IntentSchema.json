@@ -1,29 +1,15 @@
 {
   "intents": [
     {
-      "intent": "RegisterCleaningIntent",
+      "intent": "RegisterItemIntent",
       "slots": [
         {
-          "name": "CleanedItem",
-          "type": "LIST_OF_CLEANABLE_ITEMS"
-        }
-      ]
-    },
-    {
-      "intent": "RegisterReplaceIntent",
-      "slots": [
+          "name": "ExpirableItem",
+          "type": "LIST_OF_ALL_ITEMS"
+        },
         {
-          "name": "ReplacedItem",
-          "type": "LIST_OF_REPLACEABLE_ITEMS"
-        }
-      ]
-    },
-    {
-      "intent": "RegisterPerishableIntent",
-      "slots": [
-        {
-          "name": "PerishableItem",
-          "type": "LIST_OF_PERISHABLE_ITEMS"
+          "name": "ExpirationDate",
+          "type": "EXPIRATION_DATES"
         }
       ]
     },
@@ -32,6 +18,15 @@
       "slots": [
         {
           "name": "QueryItem",
+          "type": "LIST_OF_ALL_ITEMS"
+        }
+      ]
+    },
+    {
+      "intent": "DeleteItemIntent",
+      "slots": [
+        {
+          "name": "DeleteItem",
           "type": "LIST_OF_ALL_ITEMS"
         }
       ]

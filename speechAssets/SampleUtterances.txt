@@ -1,40 +1,21 @@
+RegisterItemIntent to set reminder for {ExpirableItem} {ExpirationDate}
+RegisterItemIntent to set a reminder for {ExpirableItem} {ExpirationDate}
 
-RegisterCleaningIntent to add clean item {CleanedItem}
-RegisterCleaningIntent to add cleaned item {CleanedItem}
-RegisterCleaningIntent I cleaned {CleanedItem}
-RegisterCleaningIntent I cleaned my {CleanedItem}
-RegisterCleaningIntent that I cleaned {CleanedItem}
-RegisterCleaningIntent that I cleaned my {CleanedItem}
-
-RegisterReplaceIntent to add replaceable item {ReplacedItem}
-RegisterReplaceIntent to add replaced item {ReplacedItem}
-RegisterReplaceIntent to add replace item {ReplacedItem}
-RegisterReplaceIntent I replaced {ReplacedItem}
-RegisterReplaceIntent I replaced my {ReplacedItem}
-RegisterReplaceIntent that I replaced {ReplacedItem}
-RegisterReplaceIntent that I replaced my {ReplacedItem}
-
-RegisterPerishableIntent to add perishable item {PerishableItem}
-RegisterPerishableIntent I opened {PerishableItem}
-RegisterPerishableIntent I opened my {PerishableItem}
-RegisterPerishableIntent I opened a jar of {PerishableItem}
-RegisterPerishableIntent I opened a bottle of {PerishableItem}
-RegisterPerishableIntent that I opened {PerishableItem}
-RegisterPerishableIntent that I opened my {PerishableItem}
-RegisterPerishableIntent that I opened a jar of {PerishableItem}
-RegisterPerishableIntent that I opened a bottle of {PerishableItem}
-RegisterPerishableIntent that I cooked {PerishableItem}
-RegisterPerishableIntent that I cooked some {PerishableItem}
-
+QueryItemIntent to check expiration for {QueryItem}
+QueryItemIntent check expiration for {QueryItem}
+QueryItemIntent how's the {QueryItem}
+QueryItemIntent how is the {QueryItem}
 QueryItemIntent how's my {QueryItem}
-QueryItemIntent how are the {QueryItem}
-QueryItemIntent how are my {QueryItem}
-QueryItemIntent check on {QueryItem}
-QueryItemIntent check on my {QueryItem}
+QueryItemIntent how is my {QueryItem}
+
+DeleteItemIntent to remove {DeleteItem}
+DeleteItemIntent to remove {DeleteItem} item
+DeleteItemIntent to complete {DeleteItem}
+DeleteItemIntent to complete {DeleteItem} item
 
 StatusUpdateIntent for a status update
 StatusUpdateIntent what's up
-StatusUpdateIntent how am I doing?
+StatusUpdateIntent how am I doing
 
 AMAZON.StopIntent stop
 AMAZON.StopIntent no
